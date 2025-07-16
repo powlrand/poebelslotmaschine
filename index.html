@@ -2,96 +2,106 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PöbelSlotMaschine</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
     body {
-      font-family: 'Press Start 2P', monospace;
-      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-      color: #00ffcc;
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', Courier, monospace;
+      background: #111;
+      color: #eee;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
-      overflow: hidden;
+      min-height: 100vh;
+      gap: 2rem;
+      text-align: center;
     }
 
     h1 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc;
+      font-size: clamp(1.5rem, 5vw, 3rem);
     }
 
-    .subtitle {
-      font-size: 0.6rem;
-      margin-bottom: 2rem;
-      color: #00ffee;
-    }
-
-    .slot-container {
+    .slots {
       display: flex;
+      flex-direction: column;
+      align-items: center;
       gap: 1rem;
-      margin-bottom: 2rem;
+      width: 90vw;
+      max-width: 500px;
     }
 
     .slot {
-      width: 180px;
-      height: 60px;
-      border: 2px solid #00ffcc;
+      background: #222;
+      padding: 1rem;
+      border: 2px solid #555;
+      border-radius: 1rem;
+      width: 100%;
+      min-height: 4rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
-      background: #111;
-      text-align: center;
-      padding: 0 0.3rem;
-      box-shadow: 0 0 8px #00ffcc;
-      white-space: pre-line; /* Zeilenumbruch erlauben */
-      font-weight: bold; /* fetter Text */
+    }
+
+    .slot span {
+      font-weight: bold;
+      font-size: clamp(1rem, 6vw, 2.5rem);
+      word-break: break-word;
     }
 
     button {
-      background: #00ffcc;
-      color: black;
+      background: #ff007f;
+      color: white;
       border: none;
-      padding: 0.75rem 1.25rem;
-      font-size: 1rem;
+      border-radius: 1rem;
+      padding: 1rem 2rem;
+      font-size: clamp(1rem, 4vw, 1.5rem);
       cursor: pointer;
-      font-family: 'Press Start 2P', monospace;
-      text-transform: uppercase;
-      box-shadow: 0 0 8px #00ffcc;
+      transition: background 0.3s ease;
     }
 
     button:hover {
-      background: #00ffee;
+      background: #e60073;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 1rem;
+      font-size: 0.8rem;
+      color: #666;
     }
   </style>
 </head>
 <body>
   <h1>PöbelSlotMaschine</h1>
-  <div class="subtitle">Erstellt von Boomerfuchs9000</div>
-  <div class="slot-container">
-    <div class="slot" id="slot1">---</div>
-    <div class="slot" id="slot2">---</div>
-    <div class="slot" id="slot3">---</div>
+
+  <div class="slots">
+    <div class="slot"><span id="slot1">—</span></div>
+    <div class="slot"><span id="slot2">—</span></div>
+    <div class="slot"><span id="slot3">—</span></div>
   </div>
-  <button id="rollBtn">bäääm</button>
+
+  <button onclick="generateInsult()">bäääm</button>
+
+  <footer>by powlrand ✨</footer>
 
   <script>
-    let wordData = null;
+    let words = {
+      adj1: [],
+      adj2: [],
+      nouns: []
+    };
 
-    async function loadWords() {
+    async function fetchWords() {
       try {
         const response = await fetch('words.json');
-        if (!response.ok) throw new Error('Fehler beim Laden der Wortliste');
-        wordData = await response.json();
-      } catch (err) {
-        console.error(err);
-        document.getElementById('slot1').textContent = 'Fehler beim Laden';
+        const data = await response.json();
+        words = data;
+        generateInsult();
+      } catch (error) {
+        console.error('Fehler beim Laden der Wörter:', error);
       }
     }
 
@@ -99,66 +109,21 @@
       return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    // Rolle 1: grammatisches Geschlecht m/w/s
-    // Je nach Geschlecht werden die Endungen bei Adj2 und Nouns angepasst
+    function generateInsult() {
+      const slot1 = document.getElementById('slot1');
+      const slot2 = document.getElementById('slot2');
+      const slot3 = document.getElementById('slot3');
 
-    function adjustAdj2(adj2, gender) {
-      // adj2 steht im Nominativ Plural oder Singular? Wir nehmen an Singular Nominativ
-      // typische Endung "-e" bei fem + neutral, "-er" bei maskulin
-      if (!adj2) return '';
+      const a1 = getRandom(words.adj1);
+      const a2 = getRandom(words.adj2);
+      const n = getRandom(words.nouns);
 
-      if (gender === 'm') {
-        // maskulin => endet auf -er
-        if (adj2.endsWith('e')) {
-          return adj2.slice(0, -1) + 'er';
-        }
-        return adj2 + 'er';
-      } else {
-        // feminin oder neutral => endet auf -e
-        if (!adj2.endsWith('e')) {
-          return adj2 + 'e';
-        }
-        return adj2;
-      }
+      slot1.innerHTML = a1;
+      slot2.innerHTML = a2;
+      slot3.innerHTML = n;
     }
 
-    function adjustNoun(noun, gender) {
-      // maskuline Nomen bekommen "r" am Ende wenn möglich (wie "Kleiner Grottenolm" vs. "Kleine Grottenolmer")
-      // Wir machen einfache Regel: maskulin: n + "r" wenn nicht schon vorhanden, fem/neut: bleiben gleich
-      // Das ist nur grob, aber dient dem Stil
-
-      if (gender === 'm') {
-        if (!noun.endsWith('r')) {
-          return noun + 'r';
-        }
-      }
-      return noun;
-    }
-
-    function rollSlots() {
-      if (!wordData) {
-        console.warn('Wortliste nicht geladen');
-        return;
-      }
-
-      const gender = getRandom(['m', 'w', 's']);
-      const adj1 = getRandom(wordData.adj1);
-      const adj2Raw = getRandom(wordData.adj2);
-      const nounRaw = getRandom(wordData.nouns);
-
-      const adj2 = adjustAdj2(adj2Raw, gender);
-      const noun = adjustNoun(nounRaw, gender);
-
-      document.getElementById('slot1').textContent = adj1;
-      document.getElementById('slot2').textContent = adj2;
-      document.getElementById('slot3').textContent = noun;
-    }
-
-    document.getElementById('rollBtn').addEventListener('click', () => {
-      rollSlots();
-    });
-
-    loadWords();
+    fetchWords();
   </script>
 </body>
 </html>
