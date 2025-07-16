@@ -1,131 +1,156 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PöbelSlotMaschine</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: 'Courier New', Courier, monospace;
-        background: #0e0e0e;
-        color: #00ffcc;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        padding: 1rem;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PöbelSlotMaschine</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #111, #333);
+      color: #f5f5f5;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-      h1 {
-        font-size: 2.5rem;
-        text-align: center;
-        margin-bottom: 2rem;
-        color: #ff0099;
-        text-shadow: 0 0 10px #ff0099;
-      }
+    h1 {
+      font-size: 2.5rem;
+      margin-top: 2rem;
+      color: #ff5c5c;
+      text-shadow: 2px 2px 0 #000;
+    }
 
-      .slot-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1.2rem;
-        align-items: center;
-        font-size: 2rem;
-        font-weight: bold;
-        min-height: 8rem;
-      }
+    .slots {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 2rem 1rem;
+      gap: 1rem;
+    }
 
+    .slot {
+      background-color: #222;
+      border: 3px solid #ff5c5c;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      min-width: 80px;
+      font-weight: bold;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slot.spin {
+      animation: spin 0.6s ease-in-out;
+    }
+
+    @keyframes spin {
+      0%   { transform: scaleY(1); }
+      30%  { transform: scaleY(0); opacity: 0.5; }
+      60%  { transform: scaleY(1.2); opacity: 1; }
+      100% { transform: scaleY(1); }
+    }
+
+    button {
+      margin: 2rem auto;
+      background: #ff5c5c;
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 8px #000;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #ff2c2c;
+    }
+
+    footer {
+      margin-top: auto;
+      font-size: 0.8rem;
+      color: #888;
+      padding: 1rem;
+    }
+
+    @media (max-width: 600px) {
       .slot {
-        min-width: 200px;
-        text-align: center;
-        padding: 0.5rem 1rem;
-        border-radius: 12px;
-        background: #1a1a1a;
-        box-shadow: 0 0 10px #00ffcc33;
-        min-height: 2.5rem;
+        font-size: 1.2rem;
+        padding: 0.7rem 1.2rem;
       }
 
       button {
-        margin-top: 2rem;
-        padding: 1rem 2rem;
-        background: #00ffcc;
-        color: #0e0e0e;
-        border: none;
-        font-size: 1.2rem;
-        font-weight: bold;
-        border-radius: 8px;
-        cursor: pointer;
-        box-shadow: 0 0 10px #00ffcc;
-        transition: transform 0.2s;
+        font-size: 1.1rem;
+        padding: 0.8rem 1.5rem;
       }
 
-      button:hover {
-        transform: scale(1.05);
+      h1 {
+        font-size: 2rem;
       }
+    }
+  </style>
+</head>
+<body>
+  <h1>PöbelSlotMaschine</h1>
+  <div class="slots">
+    <div class="slot" id="slot1">...</div>
+    <div class="slot" id="slot2">...</div>
+    <div class="slot" id="slot3">...</div>
+  </div>
+  <button onclick="spin()">Slot mich hart</button>
+  <footer>
+    &copy; 2025 PöbelSlot Inc.
+  </footer>
 
-      @media (max-width: 600px) {
-        h1 {
-          font-size: 2rem;
-        }
-        .slot-container {
-          font-size: 1.5rem;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <h1><span style="color:#00ffff">Pöbel</span>Slot<span style="color:#ff0099">Maschine</span></h1>
-    <div class="slot-container">
-      <div id="slot1" class="slot">---</div>
-      <div id="slot2" class="slot">---</div>
-      <div id="slot3" class="slot">---</div>
-    </div>
-    <button onclick="spin()" class="spin-button">
-  Slot mich hart
-</button>
+  <script>
+    let words;
 
-    <script>
-      let words = null;
+    async function loadWords() {
+      const res = await fetch("words.json");
+      const json = await res.json();
+      words = {
+        adj1: json.adj1,
+        genders: [
+          { type: "fem", adj2: json.fem.adj2, nouns: json.fem.nouns },
+          { type: "masc", adj2: json.masc.adj2, nouns: json.masc.nouns }
+        ]
+      };
+    }
 
-      async function loadWords() {
-        const res = await fetch("words.json");
-        words = await res.json();
-        words.genders = [words.fem, words.masc];
-      }
+    function getRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
 
-      function getRandom(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-      }
+    function spinSlot(id, text) {
+      const el = document.getElementById(id);
+      el.classList.remove("spin");
+      void el.offsetWidth; // Trigger reflow
+      el.textContent = text;
+      el.classList.add("spin");
+    }
 
-      function animateSlot(id, word, duration = 600) {
-        const el = document.getElementById(id);
-        let i = 0;
-        const interval = setInterval(() => {
-          el.innerText = getRandom([...words.adj1, ...words.fem.adj2, ...words.masc.adj2, ...words.fem.nouns, ...words.masc.nouns]);
-          i++;
-        }, 50);
+    async function spin() {
+      if (!words) await loadWords();
 
-        setTimeout(() => {
-          clearInterval(interval);
-          el.innerText = word;
-        }, duration);
-      }
+      const adj1 = getRandom(words.adj1);
+      const genderBlock = getRandom(words.genders);
+      const adj2 = getRandom(genderBlock.adj2);
+      const noun = getRandom(genderBlock.nouns);
 
-      async function spin() {
-        if (!words) await loadWords();
-
-        const adj1 = getRandom(words.adj1);
-        const genderBlock = getRandom(words.genders);
-        const adj2 = getRandom(genderBlock.adj2);
-        const noun = getRandom(genderBlock.nouns);
-
-        animateSlot("slot1", adj1);
-        animateSlot("slot2", adj2);
-        animateSlot("slot3", noun);
-      }
-
-      loadWords();
-    </script>
-  </body>
+      spinSlot("slot1", adj1);
+      spinSlot("slot2", adj2);
+      spinSlot("slot3", noun);
+    }
+  </script>
+</body>
 </html>
