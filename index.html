@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PöbelSlotMaschine</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    body {
+      font-family: 'Press Start 2P', monospace;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      color: #00ffcc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc;
+    }
+    .subtitle {
+      font-size: 0.6rem;
+      margin-bottom: 2rem;
+      color: #00ffee;
+    }
+    .slot-container {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .slot {
+      width: 180px;
+      height: 60px;
+      border: 2px solid #00ffcc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      background: #111;
+      text-align: center;
+      padding: 0 0.3rem;
+      box-shadow: 0 0 8px #00ffcc;
+    }
+    button {
+      background: #00ffcc;
+      color: black;
+      border: none;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: 'Press Start 2P', monospace;
+      text-transform: uppercase;
+      box-shadow: 0 0 8px #00ffcc;
+    }
+    button:hover {
+      background: #00ffee;
+    }
+  </style>
+</head>
+<body>
+  <h1>PöbelSlotMaschine</h1>
+  <div class="subtitle">Erstellt von Boomerfuchs9000</div>
+  <div class="slot-container">
+    <div class="slot" id="slot1">---</div>
+    <div class="slot" id="slot2">---</div>
+    <div class="slot" id="slot3">---</div>
+  </div>
+  <button onclick="rollSlots()">🧨 BÄÄÄM!</button>
+
+  <script>
+    let adj1 = [], adj2 = [], nouns = [];
+
+    async function loadWords() {
+      const response = await fetch("words.json");
+      const data = await response.json();
+      adj1 = data.adj1;
+      adj2 = data.adj2;
+      nouns = data.nouns;
+    }
+
+    async function rollSlots() {
+      if (!adj1.length) await loadWords();
+      let counter = 0;
+      const maxSpins = 15;
+      const interval = setInterval(() => {
+        document.getElementById('slot1').textContent = adj1[Math.floor(Math.random() * adj1.length)];
+        document.getElementById('slot2').textContent = adj2[Math.floor(Math.random() * adj2.length)];
+        document.getElementById('slot3').textContent = nouns[Math.floor(Math.random() * nouns.length)];
+        counter++;
+        if (counter > maxSpins) clearInterval(interval);
+      }, 100);
+    }
+  </script>
+</body>
+</html>
