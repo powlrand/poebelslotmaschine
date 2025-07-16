@@ -2,98 +2,105 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PöbelSlotMaschine</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
     body {
-      font-family: 'Press Start 2P', monospace;
-      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      background: #000;
       color: #00ffcc;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      overflow: hidden;
+      font-family: 'Courier New', Courier, monospace;
+      text-align: center;
+      padding: 2rem;
     }
+
     h1 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc;
-    }
-    .subtitle {
-      font-size: 0.6rem;
+      font-size: 2.5rem;
       margin-bottom: 2rem;
-      color: #00ffee;
     }
-    .slot-container {
+
+    .slots {
       display: flex;
+      justify-content: center;
       gap: 1rem;
       margin-bottom: 2rem;
     }
+
     .slot {
       width: 180px;
-      height: 60px;
+      min-height: 60px;
       border: 2px solid #00ffcc;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      flex-direction: column;
+      font-size: 1rem;
       background: #111;
       text-align: center;
-      padding: 0 0.3rem;
+      padding: 0.5rem;
       box-shadow: 0 0 8px #00ffcc;
     }
+
     button {
       background: #00ffcc;
-      color: black;
+      color: #000;
       border: none;
-      padding: 0.75rem 1.25rem;
-      font-size: 1rem;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
       cursor: pointer;
-      font-family: 'Press Start 2P', monospace;
-      text-transform: uppercase;
-      box-shadow: 0 0 8px #00ffcc;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #00ffcc;
     }
-    button:hover {
-      background: #00ffee;
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: #555;
     }
   </style>
 </head>
 <body>
   <h1>PöbelSlotMaschine</h1>
-  <div class="subtitle">Erstellt von Boomerfuchs9000</div>
-  <div class="slot-container">
-    <div class="slot" id="slot1">---</div>
-    <div class="slot" id="slot2">---</div>
-    <div class="slot" id="slot3">---</div>
+
+  <div class="slots">
+    <div class="slot" id="slot1">–</div>
+    <div class="slot" id="slot2">–</div>
+    <div class="slot" id="slot3">–</div>
   </div>
-  <button onclick="rollSlots()">🧨 BÄÄÄM!</button>
+
+  <button onclick="rollSlots()">bäääm</button>
+
+  <footer>
+    <p>„PöbelSlotMaschine“ — von Paul Rand</p>
+  </footer>
 
   <script>
-    let adj1 = [], adj2 = [], nouns = [];
+    let words = {};
 
     async function loadWords() {
       const response = await fetch("words.json");
-      const data = await response.json();
-      adj1 = data.adj1;
-      adj2 = data.adj2;
-      nouns = data.nouns;
+      words = await response.json();
+    }
+
+    function getRandomFrom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
     }
 
     async function rollSlots() {
-      if (!adj1.length) await loadWords();
-      let counter = 0;
-      const maxSpins = 15;
-      const interval = setInterval(() => {
-        document.getElementById('slot1').textContent = adj1[Math.floor(Math.random() * adj1.length)];
-        document.getElementById('slot2').textContent = adj2[Math.floor(Math.random() * adj2.length)];
-        document.getElementById('slot3').textContent = nouns[Math.floor(Math.random() * nouns.length)];
-        counter++;
-        if (counter > maxSpins) clearInterval(interval);
-      }, 100);
+      if (Object.keys(words).length === 0) await loadWords();
+
+      const genders = ["masculine", "feminine", "neuter"];
+      const gender = getRandomFrom(genders);
+      const data = words[gender];
+
+      const slot1 = getRandomFrom(data.adj1);
+      const slot2 = getRandomFrom(data.adj2);
+      const noun = getRandomFrom(data.nouns);
+
+      const genderLabel = gender === "masculine" ? "(m)" : gender === "feminine" ? "(w)" : "(s)";
+
+      document.getElementById('slot1').innerHTML = `<b>${slot1}</b><br><b>${genderLabel}</b>`;
+      document.getElementById('slot2').innerHTML = `<b>${slot2}</b>`;
+      document.getElementById('slot3').innerHTML = `<b>${noun}</b>`;
     }
   </script>
 </body>
