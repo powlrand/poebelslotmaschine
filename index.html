@@ -90,39 +90,40 @@
     <button onclick="generate()">bäääm</button>
   </div>
 
-  <script>
-    let data;
+<script>
+  let words;
 
-    async function loadWords() {
-      try {
-        const response = await fetch('words.json');
-        data = await response.json();
-      } catch (error) {
-        console.error('Fehler beim Laden der Wortlisten:', error);
-      }
-    }
+  async function loadWords() {
+    const response = await fetch("words.json");
+    words = await response.json();
+  }
 
-    function getRandomItem(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
+  function getRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
 
-    function generate() {
-      if (!data || !data.genders || !data.adj1) {
-        console.error("Daten nicht geladen.");
-        return;
-      }
+  function spinSlot(slot, text, bold = false) {
+    const slotEl = document.getElementById(slot);
+    slotEl.innerHTML = bold ? `<strong>${text}</strong>` : text;
+  }
 
-      const genderSet = getRandomItem(data.genders);
-      const adj1 = getRandomItem(data.adj1);
-      const adj2 = getRandomItem(genderSet.adj2);
-      const noun = getRandomItem(genderSet.nouns);
+  async function spin() {
+    if (!words) await loadWords();
 
-      document.getElementById("slot1").innerText = adj1;
-      document.getElementById("slot2").innerText = adj2;
-      document.getElementById("slot3").innerText = noun;
-    }
+    const adj1 = getRandom(words.adj1);
+    const genderBlock = getRandom(words.genders);
 
-    loadWords();
-  </script>
+    const adj2 = getRandom(genderBlock.adj2);
+    const noun = getRandom(genderBlock.nouns);
+
+    spinSlot("slot1", adj1, true);
+    spinSlot("slot2", adj2);
+    spinSlot("slot3", noun, true);
+  }
+
+  window.onload = () => {
+    loadWords().then(() => spin());
+  };
+</script>
 </body>
 </html>
