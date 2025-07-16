@@ -1,107 +1,164 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PöbelSlotMaschine</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
     body {
-      background: #000;
+      font-family: 'Press Start 2P', monospace;
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
       color: #00ffcc;
-      font-family: 'Courier New', Courier, monospace;
-      text-align: center;
-      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
     }
 
     h1 {
-      font-size: 2.5rem;
-      margin-bottom: 2rem;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc;
     }
 
-    .slots {
+    .subtitle {
+      font-size: 0.6rem;
+      margin-bottom: 2rem;
+      color: #00ffee;
+    }
+
+    .slot-container {
       display: flex;
-      justify-content: center;
       gap: 1rem;
       margin-bottom: 2rem;
     }
 
     .slot {
       width: 180px;
-      min-height: 60px;
+      height: 60px;
       border: 2px solid #00ffcc;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      font-size: 1rem;
+      font-size: 0.9rem;
       background: #111;
       text-align: center;
-      padding: 0.5rem;
+      padding: 0 0.3rem;
       box-shadow: 0 0 8px #00ffcc;
+      white-space: pre-line; /* Zeilenumbruch erlauben */
+      font-weight: bold; /* fetter Text */
     }
 
     button {
       background: #00ffcc;
-      color: #000;
+      color: black;
       border: none;
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
-      font-weight: bold;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
       cursor: pointer;
-      border-radius: 8px;
-      box-shadow: 0 0 10px #00ffcc;
+      font-family: 'Press Start 2P', monospace;
+      text-transform: uppercase;
+      box-shadow: 0 0 8px #00ffcc;
     }
 
-    footer {
-      margin-top: 3rem;
-      font-size: 0.8rem;
-      color: #555;
+    button:hover {
+      background: #00ffee;
     }
   </style>
 </head>
 <body>
   <h1>PöbelSlotMaschine</h1>
-
-  <div class="slots">
-    <div class="slot" id="slot1">–</div>
-    <div class="slot" id="slot2">–</div>
-    <div class="slot" id="slot3">–</div>
+  <div class="subtitle">Erstellt von Boomerfuchs9000</div>
+  <div class="slot-container">
+    <div class="slot" id="slot1">---</div>
+    <div class="slot" id="slot2">---</div>
+    <div class="slot" id="slot3">---</div>
   </div>
-
-  <button onclick="rollSlots()">bäääm</button>
-
-  <footer>
-    <p>„PöbelSlotMaschine“ — von Paul Rand</p>
-  </footer>
+  <button id="rollBtn">bäääm</button>
 
   <script>
-    let words = {};
+    let wordData = null;
 
     async function loadWords() {
-      const response = await fetch("words.json");
-      words = await response.json();
+      try {
+        const response = await fetch('words.json');
+        if (!response.ok) throw new Error('Fehler beim Laden der Wortliste');
+        wordData = await response.json();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('slot1').textContent = 'Fehler beim Laden';
+      }
     }
 
-    function getRandomFrom(arr) {
+    function getRandom(arr) {
       return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    async function rollSlots() {
-      if (Object.keys(words).length === 0) await loadWords();
+    // Rolle 1: grammatisches Geschlecht m/w/s
+    // Je nach Geschlecht werden die Endungen bei Adj2 und Nouns angepasst
 
-      const genders = ["masculine", "feminine", "neuter"];
-      const gender = getRandomFrom(genders);
-      const data = words[gender];
+    function adjustAdj2(adj2, gender) {
+      // adj2 steht im Nominativ Plural oder Singular? Wir nehmen an Singular Nominativ
+      // typische Endung "-e" bei fem + neutral, "-er" bei maskulin
+      if (!adj2) return '';
 
-      const slot1 = getRandomFrom(data.adj1);
-      const slot2 = getRandomFrom(data.adj2);
-      const noun = getRandomFrom(data.nouns);
-
-      const genderLabel = gender === "masculine" ? "(m)" : gender === "feminine" ? "(w)" : "(s)";
-
-      document.getElementById('slot1').innerHTML = `<b>${slot1}</b><br><b>${genderLabel}</b>`;
-      document.getElementById('slot2').innerHTML = `<b>${slot2}</b>`;
-      document.getElementById('slot3').innerHTML = `<b>${noun}</b>`;
+      if (gender === 'm') {
+        // maskulin => endet auf -er
+        if (adj2.endsWith('e')) {
+          return adj2.slice(0, -1) + 'er';
+        }
+        return adj2 + 'er';
+      } else {
+        // feminin oder neutral => endet auf -e
+        if (!adj2.endsWith('e')) {
+          return adj2 + 'e';
+        }
+        return adj2;
+      }
     }
+
+    function adjustNoun(noun, gender) {
+      // maskuline Nomen bekommen "r" am Ende wenn möglich (wie "Kleiner Grottenolm" vs. "Kleine Grottenolmer")
+      // Wir machen einfache Regel: maskulin: n + "r" wenn nicht schon vorhanden, fem/neut: bleiben gleich
+      // Das ist nur grob, aber dient dem Stil
+
+      if (gender === 'm') {
+        if (!noun.endsWith('r')) {
+          return noun + 'r';
+        }
+      }
+      return noun;
+    }
+
+    function rollSlots() {
+      if (!wordData) {
+        console.warn('Wortliste nicht geladen');
+        return;
+      }
+
+      const gender = getRandom(['m', 'w', 's']);
+      const adj1 = getRandom(wordData.adj1);
+      const adj2Raw = getRandom(wordData.adj2);
+      const nounRaw = getRandom(wordData.nouns);
+
+      const adj2 = adjustAdj2(adj2Raw, gender);
+      const noun = adjustNoun(nounRaw, gender);
+
+      document.getElementById('slot1').textContent = adj1;
+      document.getElementById('slot2').textContent = adj2;
+      document.getElementById('slot3').textContent = noun;
+    }
+
+    document.getElementById('rollBtn').addEventListener('click', () => {
+      rollSlots();
+    });
+
+    loadWords();
   </script>
 </body>
 </html>
