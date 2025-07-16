@@ -16,7 +16,7 @@
     "vergammelt",
     "verlottert",
     "verquollen",
-    "fahl",
+    "fahl"
   ],
   "adj2": [
     "klägliche",
@@ -44,38 +44,42 @@
     "fluffbröselige",
     "ausgeleierte",
     "verblödete",
-    "verschallerte",
+    "verschallerte"
   ],
-  "nouns": [
-    "Ballerkeks",
-    "Brabbelgott",
-    "Jockel",
-    "Eimer",
-    "Pissflitsche",
-    "Bummsolm",
-    "Grottenolm",
-    "Schwurbler",
-    "Wicht",
-    "Trottel",
-    "Lümmel",
-    "Modderkopp",
-    "Nase",
-    "Spinner",
-    "Lappen",
-    "Knalltüte",
-    "Schlaumeier",
-    "Flachzange",
-    "Kasper",
-    "Hanswurst",
-    "Schnarchnase",
-    "Heiopei",
-    "Quatschkopf",
-    "Pappnase",
-    "Eierkopp",
-    "Wurzelzwerg",
-    "Hampelmann",
-    "Schlabberlappen",
-    "Schmalspurheld"
-    
-  ]
+  "nouns": {
+    "masc": [
+      "Ballerkeks",
+      "Brabbelgott",
+      "Grottenolm",
+      "Jockel",
+      "Trottel",
+      "Eimer",
+      "Bummsolm",
+      "Wicht",
+      "Lümmel",
+      "Modderkopp",
+      "Spinner",
+      "Knalltüte",
+      "Schlaumeier",
+      "Kasper",
+      "Hanswurst",
+      "Heiopei",
+      "Quatschkopf",
+      "Pappnase",
+      "Eierkopp",
+      "Wurzelzwerg",
+      "Hampelmann",
+      "Schlabberlappen",
+      "Schmalspurheld"
+    ],
+    "fem": [
+      "Pissflitsche",
+      "Schnarchnase"
+    ],
+    "neut": [
+      "Lappen",
+      "Flachzange",
+      "Nase"
+    ]
+  }
 }
