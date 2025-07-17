@@ -1,136 +1,119 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pöbelmaschine – Screenshot-Modus</title>
+  <title>PöbelSlotMaschine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
   <style>
-    @keyframes glitch {
-      0% {
-        text-shadow: 2px 0 yellow, -2px 0 cyan;
-      }
-
-      20% {
-        text-shadow: -2px 0 magenta, 2px 0 lime;
-      }
-
-      40% {
-        text-shadow: 2px 0 red, -2px 0 blue;
-      }
-
-      60% {
-        text-shadow: -2px 0 cyan, 2px 0 magenta;
-      }
-
-      80% {
-        text-shadow: 2px 0 lime, -2px 0 yellow;
-      }
-
-      100% {
-        text-shadow: 2px 0 yellow, -2px 0 cyan;
-      }
-    }
-
     body {
       background-color: black;
-      color: yellow;
-      font-family: monospace;
-      margin: 0;
-      padding: 0;
+      color: magenta;
+      font-family: 'Space Mono', monospace;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
-    }
-
-    header {
-      font-size: 2.5rem;
-      text-align: center;
-      padding: 1rem;
-      animation: glitch 1s infinite;
-    }
-
-    .slot-machine {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
       align-items: center;
-      padding: 2rem;
-      box-sizing: border-box;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
     }
 
     .slots {
       display: flex;
       gap: 1rem;
+      font-size: 2rem;
+      margin-bottom: 2rem;
       flex-wrap: wrap;
       justify-content: center;
     }
 
     .slot {
-      border: 3px solid yellow;
-      padding: 1rem 2rem;
-      font-size: 2rem;
-      min-width: 120px;
-      text-align: center;
-      animation: glitch 1.2s infinite;
+      border: 2px solid magenta;
+      padding: 1rem 1.5rem;
+      min-width: 100px;
+      animation: glitch 0.3s ease-out;
     }
 
     button {
-      margin-top: 2rem;
-      padding: 1rem 2rem;
-      font-size: 1.5rem;
-      font-weight: bold;
-      background: black;
-      color: yellow;
-      border: 2px solid yellow;
+      background-color: transparent;
+      color: magenta;
+      border: 2px solid magenta;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.25rem;
       cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
-    footer {
-      text-align: center;
-      font-size: 0.8rem;
-      padding: 1rem;
+    button:hover {
+      background-color: magenta;
+      color: black;
+    }
+
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 1px); }
+      40% { transform: translate(2px, -1px); }
+      60% { transform: translate(-1px, 2px); }
+      80% { transform: translate(1px, -2px); }
+      100% { transform: translate(0); }
     }
 
     @media (max-width: 600px) {
-      .slot {
-        font-size: 1.2rem;
-        padding: 0.5rem 1rem;
-        min-width: 80px;
-      }
-
-      button {
-        font-size: 1rem;
-        padding: 0.5rem 1rem;
-      }
-
-      header {
-        font-size: 2rem;
-      }
+      h1 { font-size: 2rem; }
+      .slots { font-size: 1.5rem; }
+      button { font-size: 1rem; }
     }
   </style>
 </head>
-
 <body>
-  <header>Pöbelmaschine</header>
-  <div class="slot-machine">
-    <div class="slots">
-      <div class="slot" id="slot1">----</div>
-      <div class="slot" id="slot2">----</div>
-      <div class="slot" id="slot3">----</div>
-    </div>
-    <button onclick="generate()">START</button>
+  <h1>PöbelSlotMaschine</h1>
+  <div class="slots">
+    <div class="slot" id="slot1">-</div>
+    <div class="slot" id="slot2">-</div>
+    <div class="slot" id="slot3">-</div>
   </div>
-  <footer>♥ by Paul Rand</footer>
+  <button onclick="spin()">Slot mich hart</button>
 
   <script>
-    function generate() {
-      document.getElementById("slot1").textContent = "knuffiger";
-      document.getElementById("slot2").textContent = "Bums";
-      document.getElementById("slot3").textContent = "Gott";
+    let words;
+
+    async function loadWords() {
+      const res = await fetch("words.json");
+      words = await res.json();
+    }
+
+    function getRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    async function spin() {
+      if (!words) await loadWords();
+
+      const adj1 = getRandom(words.adj1);
+      const genderBlock = Math.random() < 0.5 ? words.fem : words.masc;
+      const adj2 = getRandom(genderBlock.adj2);
+      const noun = getRandom(genderBlock.nouns);
+
+      spinSlot("slot1", adj1);
+      spinSlot("slot2", adj2);
+      spinSlot("slot3", noun);
+    }
+
+    function spinSlot(id, value) {
+      const slot = document.getElementById(id);
+      slot.classList.remove("slot");
+      void slot.offsetWidth; // Reset animation
+      slot.classList.add("slot");
+      slot.textContent = value;
     }
   </script>
 </body>
-
 </html>
